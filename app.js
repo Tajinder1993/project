@@ -2,9 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
+var cors = require('cors')
 
 // Create Express app
 const app = express();
+
+app.use(cors()); // enable all CORS requests
+
 const PORT = 3000;
 
 const dbUsername = 'job_portal';
@@ -30,6 +34,15 @@ const {Category, Job, Company, Contact, User } = require('./Models');
 app.use(bodyParser.json());
 
 // API endpoints
+// GET /get-category-list
+app.get('/', async (req, res) => {
+  try {
+    res.send('Ping!');
+  } catch (err) {
+    res.status(500).json({ error: 'Error fetching category list' });
+  }
+});
+
 
 // GET /get-category-list
 app.get('/get-category-list', async (req, res) => {
@@ -46,12 +59,13 @@ app.get('/get-category-list', async (req, res) => {
 app.get('/get-job-list', async (req, res) => {
   try {
     // Fetch job list from MongoDB based on request parameters
-    const { jobType, company, jobTitle } = req.query;
+    const { jobType, company, jobTitle, jobId } = req.query;
     const query = {};
     if (jobType) query.type = jobType;
     if (company) query.company = company;
     if (jobTitle) query.title = jobTitle;
-
+    if(jobId) query._id = jobId;
+ 
     const jobList = await Job.find(query);
     res.json({ jobList });
   } catch (err) {
